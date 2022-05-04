@@ -1,0 +1,11 @@
+# Environment
+.env
+
+# node_modules
+node_modules/*
+
+# yaml
+# app.yaml
+
+# coverage
+# coverage/*
