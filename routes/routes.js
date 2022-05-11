@@ -2,6 +2,12 @@ const express = require('express');
 const router = express.Router();
 // const { check, validationResult } = require('express-validator');
 
+router.get('/expenses', (req, res) => {
+    res.status(200).json({
+        message: "message"
+    });
+});
+
 router.get('/expenses/month', (req, res) => {
 });
 

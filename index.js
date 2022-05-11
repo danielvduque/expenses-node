@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 const app = express();
 
 // Environment
@@ -8,6 +9,15 @@ dotenv.config();
 
 // Support post requests - json 
 app.use(bodyParser.json());
+
+// mongoDB
+const dbName = process.env.dbname;
+mongoose.connect(`mongodb://localhost:27017/${dbName}`, { useNewUrlParser: true });
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "connection error: "));
+db.once("open", function () {
+  console.log("Connected successfully to database ");
+});
 
 // Google app engine 
 app.set('trust proxy', true);

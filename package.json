@@ -4,6 +4,7 @@
   "description": "App para gastos",
   "main": "index.js",
   "scripts": {
+    "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Daniel Duque",
@@ -13,6 +14,10 @@
     "body-parser": "^1.19.0",
     "dotenv": "^8.2.0",
     "express": "^4.18.1",
-    "express-validator": "^6.10.0"
+    "express-validator": "^6.10.0",
+    "mongoose": "^6.3.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.16"
   }
 }
