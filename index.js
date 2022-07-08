@@ -11,38 +11,41 @@ dotenv.config();
 app.use(bodyParser.json());
 
 // mongoDB
-const dbName = process.env.dbname;
-mongoose.connect(`mongodb://localhost:27017/${dbName}`, { useNewUrlParser: true });
+const dbName = process.env.DBNAME;
+mongoose.connect(`mongodb://localhost:27017/${dbName}`, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error: "));
 db.once("open", function () {
-  console.log("Connected successfully to database ");
-});
+  console.log("Connected successfully to database: ", dbName);
 
-// Google app engine 
-app.set('trust proxy', true);
+  // Google app engine 
+  app.set('trust proxy', true);
 
-// Server
-const port = process.env.PORT;
-app.listen(port, () => {
+  // Server
+  const port = process.env.PORT;
+  app.listen(port, () => {
     console.log(`Expenses test API listening at ${port} port`);
-});
+  });
 
-// Test endpoint
-app.get('/', (req, res) => {
-    res.status(200).send('Api andando.');
-});
+  // Test endpoint
+  app.get('/', (req, res) => {
+    res.status(200).send('Health ok.');
+  });
 
-// Routes
-const routes = require('./routes/routes');
-app.use('/', routes);
+  // Routes
+  const routes = require('./routes/routes');
+  app.use('/', routes);
 
-// Catch 404 error
-app.use((req, res) => {
+  // Catch 404 error
+  app.use((req, res) => {
     res.status(404).json({
-        error: `page ${req.originalUrl} not found`,
-        status: 404
+      error: `page ${req.originalUrl} not found`,
+      status: 404
     });
-});
+  });
 
+});
 module.exports = app;
