@@ -48,7 +48,6 @@ router.post('/expenses', postValidations, async (req, res) => {
   });
 });
 
-
 const putValidations = [
   check('id').notEmpty().withMessage('ID is required').isLength({ min: 24, max:24 }).withMessage('id must be a 24 string length')
 ];
@@ -74,7 +73,30 @@ router.put('/expenses', putValidations, async (req, res) => {
     }); 
   }catch (e){
     console.error(e);
-    res.status(200).json(e);
+    res.status(500).json(e);
+  }
+});
+
+const deleteValidations = [
+  check('id').notEmpty().withMessage('ID is required').isLength({ min: 24, max:24 }).withMessage('id must be a 24 string length')
+];
+router.delete('/expenses', deleteValidations, async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).send(errors);
+  }
+
+  try {
+    const expense = await Expense.findOneAndRemove({_id: req.body.id});
+    await expense.delete();
+    let message = expense ? 'Deleted successfully' : 'Something happened. please verify';
+    res.status(200).json({
+      id: req.body.id,
+      message
+    }); 
+  }catch (e){
+    console.error(e);
+    res.status(500).json({error: e});
   }
 });
 
