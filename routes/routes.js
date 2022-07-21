@@ -3,10 +3,9 @@ const router = express.Router();
 const { check, validationResult } = require('express-validator');
 const Expense = require('../models/Expense');
 
-router.get('/expenses', (req, res) => {
-  res.status(200).json({
-    message: 'message'
-  });
+router.get('/expenses', async (req, res) => {
+  const expenses = await Expense.find().sort({created_at: -1}).limit(10);
+  res.status(200).json(expenses);
 });
 
 const postValidations = [
