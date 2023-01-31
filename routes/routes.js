@@ -99,15 +99,68 @@ router.delete('/expenses', deleteValidations, async (req, res) => {
   }
 });
 
-router.get('/expenses/month', (req, res) => {
+router.get('/expenses/week', async (req, res) => {
+  // Get the current date and last week's date
+  const currentDate = new Date();
+  const lastWeekDate = new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+  
+  // Find all expenses from the last week
+  const lastWeekExpenses = await Expense.find({
+    'date': {
+      $gte: lastWeekDate,
+      $lt: currentDate
+    }
+  }).toArray();
+
+  // Summarize the data
+  let totalExpenses = 0;
+  let totalByCurrency = {};
+  let totalByExpenseType = {};
+  let totalByWhere = {};
+  lastWeekExpenses.forEach((expense) => {
+    totalExpenses += expense.total;
+    !totalByCurrency[expense.currency] ? totalByCurrency[expense.currency] += expense.currency : 0;
+    !totalByExpenseType[expense.expenseType] ? totalByExpenseType[expense.expenseType] += expense.expenseType : 0;
+    !totalByWhere[expense.where] ? totalByWhere[expense.where] += expense.where : 0;
+  });
+  
+  // Create the JSON response
+  const response = {
+    totalExpenses,
+    totalByCurrency,
+    totalByExpenseType,
+    totalByWhere
+  };
+  
+  // Send the JSON response
+  res.json(response);
 });
 
-router.get('/expenses/week', (req, res) => {
+router.get('/expenses/month', (req, res) => {
 });
 
 router.get('/expenses/top', (req, res) => {
 });
 
+router.get('/expenses/most', async (req, res) => {
+  const mostExpensedPlace = await Expense.aggregate([
+    {
+      $group: {
+        _id: '$where',
+        total: { $sum: '$total' },
+        count: { $sum: 1 }
+      }
+    },
+    {
+      $sort: { total: -1 }
+    },
+    {
+      $limit: 1
+    }
+  ]).toArray();
+  // Send the JSON response
+  res.json({place: mostExpensedPlace[0]._id, total: mostExpensedPlace[0].total});
+});
 
 
 module.exports = router;
