@@ -4,7 +4,7 @@ const { check, validationResult } = require('express-validator');
 const Expense = require('../models/Expense');
 
 router.get('/expenses', async (req, res) => {
-  const expenses = await Expense.find().sort({created_at: -1}).limit(10);
+  const expenses = await Expense.find().sort({ created_at: -1 }).limit(10);
   res.status(200).json(expenses);
 });
 
@@ -48,7 +48,7 @@ router.post('/expenses', postValidations, async (req, res) => {
 });
 
 const putValidations = [
-  check('id').notEmpty().withMessage('ID is required').isLength({ min: 24, max:24 }).withMessage('id must be a 24 string length')
+  check('id').notEmpty().withMessage('ID is required').isLength({ min: 24, max: 24 }).withMessage('id must be a 24 string length')
 ];
 router.put('/expenses', putValidations, async (req, res) => {
   const errors = validationResult(req);
@@ -69,15 +69,15 @@ router.put('/expenses', putValidations, async (req, res) => {
     res.status(200).json({
       id: req.body.id,
       message
-    }); 
-  }catch (e){
+    });
+  } catch (e) {
     console.error(e);
     res.status(500).json(e);
   }
 });
 
 const deleteValidations = [
-  check('id').notEmpty().withMessage('ID is required').isLength({ min: 24, max:24 }).withMessage('id must be a 24 string length')
+  check('id').notEmpty().withMessage('ID is required').isLength({ min: 24, max: 24 }).withMessage('id must be a 24 string length')
 ];
 router.delete('/expenses', deleteValidations, async (req, res) => {
   const errors = validationResult(req);
@@ -86,16 +86,16 @@ router.delete('/expenses', deleteValidations, async (req, res) => {
   }
 
   try {
-    const expense = await Expense.findOneAndRemove({_id: req.body.id});
+    const expense = await Expense.findOneAndRemove({ _id: req.body.id });
     await expense.delete();
     let message = expense ? 'Deleted successfully' : 'Something happened. please verify';
     res.status(200).json({
       id: req.body.id,
       message
-    }); 
-  }catch (e){
+    });
+  } catch (e) {
     console.error(e);
-    res.status(500).json({error: e});
+    res.status(500).json({ error: e });
   }
 });
 
@@ -103,7 +103,7 @@ router.get('/expenses/week', async (req, res) => {
   // Get the current date and last week's date
   const currentDate = new Date();
   const lastWeekDate = new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000);
-  
+
   // Find all expenses from the last week
   const lastWeekExpenses = await Expense.find({
     'datetime': {
@@ -123,7 +123,7 @@ router.get('/expenses/week', async (req, res) => {
     !totalByExpenseType[expense.type] ? totalByExpenseType[expense.type] = expense.total : totalByExpenseType[expense.type] += expense.total;
     !totalByWhere[expense.where] ? totalByWhere[expense.where] = expense.total : totalByWhere[expense.where] += expense.total;
   });
-  
+
   // Create the JSON response
   const response = {
     totalExpenses,
@@ -131,7 +131,7 @@ router.get('/expenses/week', async (req, res) => {
     totalByExpenseType,
     totalByWhere
   };
-  
+
   // Send the JSON response
   res.json(response);
 });
@@ -139,7 +139,7 @@ router.get('/expenses/week', async (req, res) => {
 router.get('/expenses/month/:currency', async (req, res) => {
   const currentDate = new Date();
   const lastMonthDate = new Date(currentDate.getTime() - 30 * 24 * 60 * 60 * 1000);
-  
+
   const lastMonthExpenses = await Expense.find({
     'datetime': {
       $gte: lastMonthDate,
@@ -158,7 +158,7 @@ router.get('/expenses/month/:currency', async (req, res) => {
     !totalByExpenseType[expense.type] ? totalByExpenseType[expense.type] = expense.total : totalByExpenseType[expense.type] += expense.total;
     !totalByWhere[expense.where] ? totalByWhere[expense.where] = expense.total : totalByWhere[expense.where] += expense.total;
   });
-  
+
   // Create the JSON response
   const response = {
     startDate: lastMonthDate,
@@ -167,12 +167,44 @@ router.get('/expenses/month/:currency', async (req, res) => {
     totalByExpenseType,
     totalByWhere
   };
-  
+
   // Send the JSON response
   res.json(response);
 });
 
-router.get('/expenses/top', (req, res) => {
+router.get('/expenses/daily', async (req, res) => {
+  const currentDate = new Date();
+  const lastWeekDate = new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+  const lastWeekExpenses = await Expense.find({
+    'datetime': {
+      $gte: lastWeekDate,
+      $lt: currentDate
+    }
+  });
+
+  // Group expenses by day and currency
+  const expensesByDayAndCurrency = {};
+  lastWeekExpenses.forEach(expense => {
+    const date = new Date(expense.datetime).toDateString();
+    const currency = expense.currency;
+    if (!expensesByDayAndCurrency[date]) {
+      expensesByDayAndCurrency[date] = {};
+    }
+    if (!expensesByDayAndCurrency[date][currency]) {
+      expensesByDayAndCurrency[date][currency] = 0;
+    }
+    expensesByDayAndCurrency[date][currency] += expense.total;
+  });
+
+  // Create the JSON response
+  const response = {};
+  for (const date in expensesByDayAndCurrency) {
+    response[date] = expensesByDayAndCurrency[date];
+  }
+
+  // Send the JSON response
+  res.json(response);
 });
 
 router.get('/expenses/most', async (req, res) => {
@@ -192,7 +224,7 @@ router.get('/expenses/most', async (req, res) => {
     }
   ]).toArray();
   // Send the JSON response
-  res.json({place: mostExpensedPlace[0]._id, total: mostExpensedPlace[0].total});
+  res.json({ place: mostExpensedPlace[0]._id, total: mostExpensedPlace[0].total });
 });
 
 
