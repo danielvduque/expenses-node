@@ -12,7 +12,8 @@ app.use(bodyParser.json());
 
 // mongoDB
 const dbName = process.env.DBNAME;
-mongoose.connect(`mongodb://localhost:27017/${dbName}`, {
+mongoose.set('strictQuery', false);
+mongoose.connect(`mongodb://127.0.0.1:27017/${dbName}`, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });

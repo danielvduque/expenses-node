@@ -106,11 +106,11 @@ router.get('/expenses/week', async (req, res) => {
   
   // Find all expenses from the last week
   const lastWeekExpenses = await Expense.find({
-    'date': {
+    'datetime': {
       $gte: lastWeekDate,
       $lt: currentDate
     }
-  }).toArray();
+  });
 
   // Summarize the data
   let totalExpenses = 0;
@@ -119,9 +119,9 @@ router.get('/expenses/week', async (req, res) => {
   let totalByWhere = {};
   lastWeekExpenses.forEach((expense) => {
     totalExpenses += expense.total;
-    !totalByCurrency[expense.currency] ? totalByCurrency[expense.currency] += expense.currency : 0;
-    !totalByExpenseType[expense.expenseType] ? totalByExpenseType[expense.expenseType] += expense.expenseType : 0;
-    !totalByWhere[expense.where] ? totalByWhere[expense.where] += expense.where : 0;
+    !totalByCurrency[expense.currency] ? totalByCurrency[expense.currency] = expense.total : totalByCurrency[expense.currency] += expense.total;
+    !totalByExpenseType[expense.type] ? totalByExpenseType[expense.type] = expense.total : totalByExpenseType[expense.type] += expense.total;
+    !totalByWhere[expense.where] ? totalByWhere[expense.where] = expense.total : totalByWhere[expense.where] += expense.total;
   });
   
   // Create the JSON response
@@ -136,7 +136,40 @@ router.get('/expenses/week', async (req, res) => {
   res.json(response);
 });
 
-router.get('/expenses/month', (req, res) => {
+router.get('/expenses/month/:currency', async (req, res) => {
+  const currentDate = new Date();
+  const lastMonthDate = new Date(currentDate.getTime() - 30 * 24 * 60 * 60 * 1000);
+  
+  const lastMonthExpenses = await Expense.find({
+    'datetime': {
+      $gte: lastMonthDate,
+      $lt: currentDate
+    },
+    'currency': req.params.currency.toUpperCase()
+  });
+
+  // Summarize the data
+  let totalExpenses = 0;
+  let totalByExpenseType = {};
+  let totalByWhere = {};
+
+  lastMonthExpenses.forEach((expense) => {
+    totalExpenses += expense.total;
+    !totalByExpenseType[expense.type] ? totalByExpenseType[expense.type] = expense.total : totalByExpenseType[expense.type] += expense.total;
+    !totalByWhere[expense.where] ? totalByWhere[expense.where] = expense.total : totalByWhere[expense.where] += expense.total;
+  });
+  
+  // Create the JSON response
+  const response = {
+    startDate: lastMonthDate,
+    endDate: currentDate,
+    totalExpenses,
+    totalByExpenseType,
+    totalByWhere
+  };
+  
+  // Send the JSON response
+  res.json(response);
 });
 
 router.get('/expenses/top', (req, res) => {
