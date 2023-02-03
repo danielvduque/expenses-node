@@ -2,6 +2,11 @@ const express = require('express');
 const router = express.Router();
 const { check, validationResult } = require('express-validator');
 const Expense = require('../models/Expense');
+const multer = require('multer');
+const xlsx = require('xlsx');
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 router.get('/expenses', async (req, res) => {
   const expenses = await Expense.find().sort({ created_at: -1 }).limit(10);
@@ -227,5 +232,26 @@ router.get('/expenses/most', async (req, res) => {
   res.json({ place: mostExpensedPlace[0]._id, total: mostExpensedPlace[0].total });
 });
 
+router.post('/expenses/upload', upload.single('file'), async (req, res) => {
+  const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  const expenses = xlsx.utils.sheet_to_json(sheet);
+
+  const promises = expenses.map(async (expense) => {
+    const expenseToInsert = new Expense({
+      total: expense.total,
+      description: expense.description,
+      where: expense.where,
+      type: 'Fijos',
+      currency: 'CLP',
+      datetime: new Date(expense.datetime),
+    });
+
+    return expenseToInsert.save();
+  });
+
+  await Promise.all(promises);
+  res.status(200).json({ message: expenses.length-1 + ' expenses inserted successfully.' });
+});
 
 module.exports = router;
