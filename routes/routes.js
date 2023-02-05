@@ -232,7 +232,7 @@ router.get('/expenses/most', async (req, res) => {
   res.json({ place: mostExpensedPlace[0]._id, total: mostExpensedPlace[0].total });
 });
 
-router.post('/expenses/upload', upload.single('file'), async (req, res) => {
+router.post('/expenses/upload/:type', upload.single('file'), async (req, res) => {
   const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
   const expenses = xlsx.utils.sheet_to_json(sheet);
@@ -242,7 +242,7 @@ router.post('/expenses/upload', upload.single('file'), async (req, res) => {
       total: expense.total,
       description: expense.description,
       where: expense.where,
-      type: 'Fijos',
+      type: req.params.type.charAt(0).toUpperCase() + req.params.type.slice(1),
       currency: 'CLP',
       datetime: new Date(expense.datetime),
     });
@@ -251,7 +251,7 @@ router.post('/expenses/upload', upload.single('file'), async (req, res) => {
   });
 
   await Promise.all(promises);
-  res.status(200).json({ message: expenses.length-1 + ' expenses inserted successfully.' });
+  res.status(200).json({ message: `${expenses.length-1} ${req.params.type} expenses inserted successfully.` });
 });
 
 module.exports = router;
