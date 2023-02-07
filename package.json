@@ -4,6 +4,7 @@
   "description": "App para gastos",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "dev": "nodemon index.js",
     "lint": "eslint . --fix",
     "test": "jest --coverage --forceExit"
