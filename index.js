@@ -13,10 +13,7 @@ app.use(bodyParser.json());
 // mongoDB
 const dbName = process.env.DBNAME;
 mongoose.set('strictQuery', false);
-mongoose.connect(`mongodb://127.0.0.1:27017/${dbName}`, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-});
+mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error: '));
 db.once('open', function () {
