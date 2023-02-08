@@ -12,13 +12,11 @@ app.use(bodyParser.json());
 
 // mongoDB
 const dbName = process.env.DBNAME;
-console.log("primer debug");
-console.log(process.env.MONGODB_URI);
-console.log("-----paso-----");
 mongoose.set('strictQuery', false);
 mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
-db.on('error', console.error(console, 'connection error: '));
+console.log("primer debug");
+db.on('error', console.error.bind(console, 'connection error: '));
 db.once('open', function () {
   console.log('Connected successfully to database: ', dbName);
 
