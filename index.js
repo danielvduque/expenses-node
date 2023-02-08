@@ -14,14 +14,12 @@ app.use(bodyParser.json());
 const dbName = process.env.DBNAME;
 mongoose.set('strictQuery', false);
 try {
-  console.log("primer debug");
   mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 }
 catch (error) {
   console.log(error);
 }
 const db = mongoose.connection;
-console.log("segundo debug");
 db.on('error', console.error.bind(console, 'connection error: '));
 db.once('open', function () {
   console.log('Connected successfully to database: ', dbName);

@@ -7,5 +7,5 @@ node_modules/*
 # yaml
 # app.yaml
 
-# coverage
-# coverage/*
+coverage
+coverage/*
