@@ -61,15 +61,8 @@ router.put('/expenses', putValidations, async (req, res) => {
     return res.status(400).send(errors);
   }
 
-  let dataToUpdate = {};
-  const indexes = Object.keys(req.body);
-  indexes.forEach((ind) => {
-    dataToUpdate[ind] = req.body[ind];
-  });
-  console.log('Data to update ', dataToUpdate);
-
   try {
-    const expense = await Expense.findByIdAndUpdate(req.body.id, dataToUpdate);
+    const expense = await Expense.findByIdAndUpdate(req.body.id, req.body);
     let message = expense ? 'Updated successfully' : 'Something happened. please verify';
     res.status(200).json({
       id: req.body.id,
