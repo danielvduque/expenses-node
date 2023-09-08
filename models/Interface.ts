@@ -3,7 +3,7 @@ export interface IExpense {
     currency: string,
     type: string,
     where: string,
-    datetime: string,
+    datetime: Date,
     description: string
 }
 

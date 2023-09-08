@@ -23,9 +23,9 @@ const validateMissingData = (req: express.Request, res: express.Response) => {
   }
 }
 
-router.get('/expenses', async (res: express.Response) => {
-  const expenses = await Expense.find().sort({ created_at: -1 }).limit(10);
-  res.status(200).json(expenses);
+router.get('/expenses', async (req: express.Request, res: express.Response) => {
+  const expenses = await Expense.find().sort({ _id: -1 }).limit(10);
+  return res.status(200).json(expenses);
 });
 
 const postValidations = validations.post();

@@ -1,22 +1,22 @@
 import express from 'express';
 import Expense from '../models/Expense';
-import CONSTANTS from '../utils/constants';
 
 export default class GetInformation {
     async getWeekExpenses(res: express.Response) {
-        const currentDate = new Date();
-        const lastWeekDate = new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const date = new Date();
+        const currentDate = date.toISOString();
+        const lastWeekDate = new Date(date.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
         const lastWeekExpenses = await Expense.find({
-            'datetime': {
+            datetime: {
                 $gte: lastWeekDate,
                 $lt: currentDate
             }
         });
 
         let totalExpenses = 0;
-        let totalByCurrency: { [currencies: string]: number };
-        let totalByExpenseType: { [types: string]: number };
-        let totalByWhere: { [locations: string]: number };
+        let totalByCurrency: { [currencies: string]: number } = {}
+        let totalByExpenseType: { [types: string]: number } = {}
+        let totalByWhere: { [locations: string]: number } = {}
         lastWeekExpenses.forEach((expense) => {
             totalExpenses += expense.total;
             !totalByCurrency[expense.currency] ? totalByCurrency[expense.currency] = expense.total : totalByCurrency[expense.currency] += expense.total;

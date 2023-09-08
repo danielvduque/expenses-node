@@ -21,7 +21,7 @@ catch (error) {
 }
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error: '));
-db.once('open', function () {
+db.once('open', () => {
   console.log('Connected successfully to database: ', dbName);
 
   // Google app engine 
