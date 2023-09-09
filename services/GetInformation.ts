@@ -13,15 +13,16 @@ export default class GetInformation {
             }
         });
 
-        let totalExpenses = 0;
+        let totalExpenses: number = 0;
         let totalByCurrency: { [currencies: string]: number } = {}
         let totalByExpenseType: { [types: string]: number } = {}
         let totalByWhere: { [locations: string]: number } = {}
         lastWeekExpenses.forEach((expense) => {
-            totalExpenses += expense.total;
-            !totalByCurrency[expense.currency] ? totalByCurrency[expense.currency] = expense.total : totalByCurrency[expense.currency] += expense.total;
-            !totalByExpenseType[expense.type] ? totalByExpenseType[expense.type] = expense.total : totalByExpenseType[expense.type] += expense.total;
-            !totalByWhere[expense.where] ? totalByWhere[expense.where] = expense.total : totalByWhere[expense.where] += expense.total;
+            let total = parseFloat(""+expense.total);
+            totalExpenses += total;
+            !totalByCurrency[expense.currency] ? totalByCurrency[expense.currency] = total : totalByCurrency[expense.currency] += total;
+            !totalByExpenseType[expense.type] ? totalByExpenseType[expense.type] = total : totalByExpenseType[expense.type] += total;
+            !totalByWhere[expense.where] ? totalByWhere[expense.where] = total : totalByWhere[expense.where] += total;
         });
 
         const response = {
@@ -35,8 +36,9 @@ export default class GetInformation {
     }
 
     async getMonthByCurrency(req: express.Request, res: express.Response) {
-        const currentDate = new Date();
-        const lastMonthDate = new Date(currentDate.getTime() - 30 * 24 * 60 * 60 * 1000);
+        const date = new Date();
+        const currentDate = date.toISOString();
+        const lastMonthDate = new Date(date.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
         const lastMonthExpenses = await Expense.find({
             'datetime': {
                 $gte: lastMonthDate,
@@ -46,13 +48,14 @@ export default class GetInformation {
         });
 
         let totalExpenses = 0;
-        let totalByExpenseType: { [x: string]: number };
-        let totalByWhere: { [x: string]: number };
+        let totalByExpenseType: { [x: string]: number } = {};
+        let totalByWhere: { [x: string]: number } = {};
 
         lastMonthExpenses.forEach((expense) => {
-            totalExpenses += expense.total;
-            !totalByExpenseType[expense.type] ? totalByExpenseType[expense.type] = expense.total : totalByExpenseType[expense.type] += expense.total;
-            !totalByWhere[expense.where] ? totalByWhere[expense.where] = expense.total : totalByWhere[expense.where] += expense.total;
+            let total = parseFloat(""+expense.total);
+            totalExpenses += total;
+            !totalByExpenseType[expense.type] ? totalByExpenseType[expense.type] = total : totalByExpenseType[expense.type] += total;
+            !totalByWhere[expense.where] ? totalByWhere[expense.where] = total : totalByWhere[expense.where] += total;
         });
 
         const response = {
@@ -67,16 +70,17 @@ export default class GetInformation {
     }
 
     async getDailyExpenses(res: express.Response) {
-        const currentDate = new Date();
-        const lastWeekDate = new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const date = new Date();
+        const currentDate = date.toISOString();
+        const lastWeekDate = new Date(date.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
         const lastWeekExpenses = await Expense.find({
             'datetime': {
                 $gte: lastWeekDate,
                 $lt: currentDate
             }
-        });
+        }).sort({ datetime: -1 })
 
-        let expensesByDayAndCurrency: { [x: string]: { [z: string]: number } };
+        let expensesByDayAndCurrency: { [x: string]: { [z: string]: number } } = {};
         lastWeekExpenses.forEach(expense => {
             const date = new Date(expense.datetime).toDateString();
             const currency = expense.currency;
@@ -86,10 +90,10 @@ export default class GetInformation {
             if (!expensesByDayAndCurrency[date][currency]) {
                 expensesByDayAndCurrency[date][currency] = 0;
             }
-            expensesByDayAndCurrency[date][currency] += expense.total;
+            expensesByDayAndCurrency[date][currency] += parseFloat(""+expense.total);
         });
 
-        let response: { [x: string]: { [z: string]: number } };
+        let response: { [x: string]: { [z: string]: number } } = {};
         for (const date in expensesByDayAndCurrency) {
             response[date] = expensesByDayAndCurrency[date];
         }
