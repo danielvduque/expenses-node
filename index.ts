@@ -1,6 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
+import cors from 'cors';
 const app = express();
 
 // Environment
@@ -9,6 +10,7 @@ dotenv.config();
 
 // Support post requests - json 
 app.use(bodyParser.json());
+app.use(cors());
 
 // mongoDB
 const dbName = process.env.DBNAME;
