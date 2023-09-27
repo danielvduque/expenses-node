@@ -1,6 +1,7 @@
 # Expenses backend
 
 nodejs / express api to add and get information a have a daily expenses control. It accepts different currencies and type of expense.
+
 NOT FINISHED YET
 
 ### Requirements
