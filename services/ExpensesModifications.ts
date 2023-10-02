@@ -2,7 +2,7 @@ import express from 'express';
 import Expense from '../models/Expense';
 import CONSTANTS from '../utils/constants';
 
-export default class ExpensesModifications {
+export class ExpensesModifications {
     async newExpense(req: express.Request, res: express.Response) {
         const { total, currency, type, where, datetime, description } = req.body;
         let newExpense = new Expense();
@@ -14,7 +14,6 @@ export default class ExpensesModifications {
         newExpense.description = description;
         await newExpense.save((err, exp) => {
           if (err) {
-            console.log(err);
             return res.status(CONSTANTS.statusBadRequest).json({
               message: 'Error saving a new expense',
               description: err
@@ -38,7 +37,6 @@ export default class ExpensesModifications {
           message
         });
       } catch (e) {
-        console.error(e);
         return res.status(500).json(e);
       }
     }
@@ -53,7 +51,6 @@ export default class ExpensesModifications {
           message
         });
       } catch (e) {
-        console.error(e);
         return res.status(500).json({ error: e });
       }
     }

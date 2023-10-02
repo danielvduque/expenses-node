@@ -1,6 +1,10 @@
+import express from 'express';
 import { check } from 'express-validator';
+import { validationResult } from 'express-validator';
+import CONSTANTS from '../utils/constants';
+
 export default class Validations {
-    post() {
+    post = () => {
         return [
             check('total').notEmpty().withMessage('Total is required').isNumeric().withMessage('Must be number'),
             check('currency').notEmpty().withMessage('Currency is required').isString().withMessage('Must be one a three letters code: CLP, USD, EUR'),
@@ -10,16 +14,21 @@ export default class Validations {
             check('description').notEmpty().withMessage('Description is required').isString().withMessage('Description must be string'),
         ];
     }
-
-    put() {
+    put = () => {
         return [
             check('id').notEmpty().withMessage('ID is required').isLength({ min: 24, max: 24 }).withMessage('id must be a 24 string length')
         ];
     }
 
-    delete() {
+    delete = () => {
         return [
             check('id').notEmpty().withMessage('ID is required').isLength({ min: 24, max: 24 }).withMessage('id must be a 24 string length')
         ];
     }
+    validateMissingData = (req?: express.Request, res?: express.Response) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+          return res.status(CONSTANTS.statusBadRequest).send(errors);
+        }
+      }
 }
