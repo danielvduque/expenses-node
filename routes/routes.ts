@@ -20,7 +20,7 @@ const putValidations = validations.put()
 const deleteValidations = validations.delete()
 
 router.get('/expenses', async (req: express.Request, res: express.Response) => {
-  const expenses = await Expense.find().sort({ _id: -1 }).limit(10);
+  const expenses = await Expense.find().sort({ _id: -1 }).limit(12);
   return res.status(200).json(expenses);
 });
 
