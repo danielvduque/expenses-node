@@ -1,8 +1,41 @@
 import express from 'express';
 import Expense from '../models/Expense';
 import getDates from '../utils/date';
+import IExpense from '../models/Interface';
 
 const dates = new getDates();
+
+const switchCurrencies = (totalByExpenseType: any, expense: IExpense) => {
+    switch(expense.currency){
+        case 'USD': {
+            totalByExpenseType[expense.type]['USD'] += Number(expense.total);
+            break
+        }
+        case 'EUR': {
+            totalByExpenseType[expense.type]['EUR'] += Number(expense.total);
+            break
+        }
+        case 'CLP': {
+            totalByExpenseType[expense.type]['CLP'] += Number(expense.total);
+            break
+        }
+    }
+    return;
+}
+
+const expenseType = (lastWeekExpenses: IExpense[]) => {
+    let totalByExpenseType: { [types: string]: {USD: number, EUR: number, CLP: number} } = {}
+
+    lastWeekExpenses.forEach((expense: IExpense) => {
+        if(!totalByExpenseType[expense.type]) {
+            totalByExpenseType[expense.type] = { 'USD': 0, 'CLP': 0, 'EUR': 0 }
+        }
+
+        switchCurrencies(totalByExpenseType, expense)
+    });
+    return totalByExpenseType
+}
+
 export default class GetInformation {
     async getWeekExpenses(res: express.Response) {
         const [lastWeekDate, currentDate] = dates.getDate(7);
@@ -10,13 +43,13 @@ export default class GetInformation {
 
         let totalExpenses: number = 0;
         let totalByCurrency: { [currencies: string]: number } = {}
-        let totalByExpenseType: { [types: string]: number } = {}
+        let totalByExpenseType: { [types: string]: {USD: number, EUR: number, CLP: number} } = expenseType(lastWeekExpenses);
         let totalByWhere: { [locations: string]: number } = {}
+        
         lastWeekExpenses.forEach((expense) => {
             let total = parseFloat("" + expense.total);
             totalExpenses += total;
             !totalByCurrency[expense.currency] ? totalByCurrency[expense.currency] = total : totalByCurrency[expense.currency] += total;
-            !totalByExpenseType[expense.type] ? totalByExpenseType[expense.type] = total : totalByExpenseType[expense.type] += total;
             !totalByWhere[expense.where] ? totalByWhere[expense.where] = total : totalByWhere[expense.where] += total;
         });
 
