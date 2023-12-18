@@ -6,20 +6,7 @@ import IExpense from '../models/Interface';
 const dates = new getDates();
 
 const switchCurrencies = (totalByExpenseType: any, expense: IExpense) => {
-    switch(expense.currency){
-        case 'USD': {
-            totalByExpenseType[expense.type]['USD'] += Number(expense.total);
-            break
-        }
-        case 'EUR': {
-            totalByExpenseType[expense.type]['EUR'] += Number(expense.total);
-            break
-        }
-        case 'CLP': {
-            totalByExpenseType[expense.type]['CLP'] += Number(expense.total);
-            break
-        }
-    }
+    totalByExpenseType[expense.type][expense.currency] += Number(expense.total);
     return;
 }
 
@@ -31,7 +18,7 @@ const expenseType = (lastWeekExpenses: IExpense[]) => {
             totalByExpenseType[expense.type] = { 'USD': 0, 'CLP': 0, 'EUR': 0 }
         }
 
-        switchCurrencies(totalByExpenseType, expense)
+        switchCurrencies(totalByExpenseType, expense);
     });
     return totalByExpenseType
 }
