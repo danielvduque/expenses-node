@@ -51,8 +51,8 @@ router.get('/expenses/daily', (req: express.Request, res: express.Response) => {
   return getEndpoints.getDailyExpenses(res);
 });
 
-router.post('/expenses/upload/:type', upload.single('file'), (req: express.Request, res: express.Response) => {
-  return fileUpload.addByFile(req, res);
-});
+// router.post('/expenses/upload/:type', upload.single('file'), (req: express.Request, res: express.Response) => {
+//   return fileUpload.addByFile(req, res);
+// });
 
 module.exports = router;
